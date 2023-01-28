@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math/rand"
-	"os"
 	"strings"
 	"time"
 )
@@ -18,6 +16,8 @@ const (
 	min            = 8
 	max            = 16
 )
+
+var validGeneratedPass string
 
 type Base64 struct {
 	encode    [64]byte
@@ -82,20 +82,17 @@ func (enc *Base64) encodeString(src []byte) string {
 	return string(buf)
 }
 
-func base64gen(reader *bufio.Reader) {
-	fmt.Println("Type text to encode:")
-	readString, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println(err)
-	}
-	strToEncode := readString[:len(readString)-1]
-	buf := make([]byte, (len(strToEncode)+2)/3*4)
-	NewBase64().encodeToBase64(buf, []byte(strToEncode))
+func base64gen() {
+	fmt.Println(`
+Now we will encode generated password into base64`)
+	fmt.Println("Text to encode:" + validGeneratedPass)
+	buf := make([]byte, (len(validGeneratedPass)+2)/3*4)
+	NewBase64().encodeToBase64(buf, []byte(validGeneratedPass))
 	fmt.Println(string(buf))
-	menu()
 }
 
 func safePassGen() {
+	fmt.Println("First we will generate password")
 	passLen := rand.Intn(max-min) + min
 	rand.Seed(time.Now().UnixNano())
 
@@ -104,9 +101,9 @@ func safePassGen() {
 	for i := 0; i < passLen; i++ {
 		gen.WriteRune(chars[rand.Intn(len(chars))])
 	}
-	validGeneratedPass := makeValid(gen.String())
+	validGeneratedPass = makeValid(gen.String())
 	fmt.Println(`Generated Password: ` + validGeneratedPass)
-	menu()
+	base64gen()
 }
 
 func makeValid(generatedPass string) string {
@@ -141,25 +138,9 @@ func addSpecificChar(generatedPass string, chars string) string {
 }
 
 func menu() {
-	reader := bufio.NewReader(os.Stdin)
 	fmt.Println(` 
-Choose option by typing number:
-1. Generate base64 from text
-2. Generate safe password`)
-	readString, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println(err)
-	}
-	switch readString[0] {
-	case '1':
-		base64gen(reader)
-	case '2':
-		safePassGen()
-	default:
-		fmt.Println("Wrong input...\n")
-		menu()
-	}
-
+Sorry but i just become aware of the fact that go playground cannot read from the console online :(`)
+	safePassGen()
 }
 
 func main() {
